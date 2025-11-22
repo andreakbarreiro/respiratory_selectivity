@@ -8,33 +8,50 @@ function [allPPC, allPvalues, sigCells] = process_phase_data(PhaseAlign, optArg)
     %     nShuffles [1000]:           for shuffle method (PPC), number of times we
     %                                 shuffle spikes before assessing significance
     %     angle_range [(0,8pi)]:     restrict phases in each trial;
-    %                               equivalent to setting the number of
-    %                               breaths
+    %                                equivalent to setting the number of
+    %                                 breaths
+    %     collapse_trial_flag [false]: Collapse trials?         
+    %     
     % OUTPUTS:
     %   allPPC:       (size: nCells x nTrials) PPC for each trial
     %   allPvalues:   (size: nCells x nTrials) pvalue of PPC for each trial
     %   sigCells: (size: variable) indices of cells that are significant:
     %                  i.e. "% trials with pvalue < alpha, is >= threshold"
     %
-    nCells = length(PhaseAlign);
-    nTrials = length(PhaseAlign{1});
-    allPPC = zeros(nCells, nTrials);
-    allPvalues = zeros(nCells, nTrials);
-    allShuffles = cell(nCells, nTrials);
-    
+
     % Default arguments
     alpha = 0.05;
     threshold = 0.8;
     nShuffles = 1000;
     angle_range = [0, 8*pi];
+    collapse_trial_flag = false;
 
     % Process optional arguments
-    if isfield(optArg,alpha); alpha = optArg.alpha; end
-    if isfield(optArg,threshold); threshold = optArg.threshold; end
-    if isfield(optArg,nShuffles); nShuffles = optArg.nShuffles; end
-    if isfield(optArg,angle_range); angle_range = optArg.angle_range; end
+    if isfield(optArg,'alpha'); alpha = optArg.alpha; end
+    if isfield(optArg,'threshold'); threshold = optArg.threshold; end
+    if isfield(optArg,'nShuffles'); nShuffles = optArg.nShuffles; end
+    if isfield(optArg,'angle_range'); angle_range = optArg.angle_range; end
+    if isfield(optArg,'collapse_trial_flag'); collapse_trial_flag = optArg.collapse_trial_flag; end
 
+    if collapse_trial_flag
+        % We will combine all trials for one calculation
+        nTrials = 1;
+    else
+        nTrials = length(PhaseAlign{1});
+    end
+    disp(nTrials)
+
+    nCells = length(PhaseAlign);
+    allPPC = zeros(nCells, nTrials);
+    allPvalues = zeros(nCells, nTrials);
+    allShuffles = cell(nCells, nTrials);
+    
     for j1 = 1:nCells
+        if collapse_trial_flag
+            % Turn into single vector: replace first entry of
+            % "phaseAlign"
+            PhaseAlign{j1}{1} = cell2mat(PhaseAlign{j1});
+        end
         ppcVals = zeros(1, nTrials);
         for t = 1:nTrials
             phaseData = PhaseAlign{j1}{t};
