@@ -39,7 +39,7 @@ function [allPPC, allPvalues, sigCells] = process_phase_data(PhaseAlign, optArg)
     else
         nTrials = length(PhaseAlign{1});
     end
-    disp(nTrials)
+    %disp(nTrials)
 
     nCells = length(PhaseAlign);
     allPPC = zeros(nCells, nTrials);

@@ -49,7 +49,16 @@ function [allMu, allPvalues, sigCells] = process_phase_data_circ_rtest(PhaseAlig
         if collapse_trial_flag
             % Turn into single vector: replace first entry of
             % "phaseAlign"
-            PhaseAlign{j1}{1} = cell2mat(PhaseAlign{j1});
+            % Turn into single vector: replace first entry of
+            % "phaseAlign"
+            try
+                PhaseAlign{j1}{1} = cell2mat(PhaseAlign{j1});
+            catch
+            % Phases per trial might be saved as a row or column vector; if
+            % row vectors, "try" clause will fail and you should use the transpose
+                PhaseAlign{j1}{1} = cell2mat(PhaseAlign{j1}')';
+            end
+         
         end
         for t = 1:nTrials
             phaseData = PhaseAlign{j1}{t};
