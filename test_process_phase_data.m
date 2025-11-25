@@ -3,7 +3,7 @@
 set_paths_AKB
 
 % Parameters
-whichFile  = '170608';       % dataset
+whichFile  = '170622';       % dataset
 regText    = 'OB_';          % choose 'OB_' or 'CX_'
 
 %disp(regText)
@@ -22,6 +22,7 @@ optArg.threshold = 0.8;
 optArg.nShuffles = 1000;
 optArg.angle_range = [0, 8*pi];
 
+disp('Computing PPC and Rtest for spontaneous data')
 % Shuffle-based
 [allPPC_spon, pval_ppc_spon, sigCells_ppc_spon] = process_phase_data(PhaseAlign, optArg);
 
@@ -33,6 +34,7 @@ optArg.angle_range = [0, 8*pi];
 fname2 = sprintf('phase_BF_%s%s.mat', regText, whichFile);
 load([dirloc fname2]);
 
+disp('Computing PPC and Rtest for post-stimulus data')
 % Shuffle-based
 [allPPC_stim, pval_ppc_stim, sigCells_ppc_stim] = process_stimulus_phase_data(PhaseAlign, optArg);
 
@@ -55,6 +57,7 @@ for j1=1:nCells
 end
 % Each cell should now have a cell array of 15x6 trials
 
+disp('Computing PPC and Rtest for "presence" condition')
 % Shuffle-based
 [allPPC_prsc, pval_ppc_prsc, sigCells_ppc_prsc] = process_stimulus_phase_data(PhaseAlign_comb, optArg);
 
@@ -83,6 +86,7 @@ optArg.collapse_trial_flag = true;
 
 % Re-read spontenous data
 load([dirloc fname1]);
+
 
 % Shuffle-based
 [allPPC_spon_coll, pval_ppc_spon_coll, sigCells_ppc_spon_coll] = ...
