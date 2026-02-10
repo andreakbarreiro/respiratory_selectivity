@@ -12,7 +12,12 @@ if ( strcmp(username,'sharana'))
 else
     addpath('~/Dropbox/MyProjects_Current/Sharana/CircStat_Info/CircStat');
     % Directory to read data
-    dirloc = '~/Dropbox/MyProjects_Current/Sharana/Calc_PhaseBF/';    
+    dirloc = '~/Dropbox/MyProjects_Current/Sharana/Calc_PhaseBF/'; 
+
+    % Where to write data files
+    outdir_data = './outdir_data/';
+    % Where to writ figures
+    outdir_figs = './outdir_figs/';
 end
 
 % Paths to subdirectories

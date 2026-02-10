@@ -13,7 +13,7 @@
 set_paths_AKB
 
 % Parameters
-whichFile  = '170608';       % dataset
+whichFile  = '170614';       % dataset
 regText    = 'CX_';          % choose 'OB_' or 'CX_'
 
 %disp(regText)
