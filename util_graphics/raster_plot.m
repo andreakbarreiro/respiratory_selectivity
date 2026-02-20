@@ -35,7 +35,7 @@ ylabel('Trial #');
 title('Sniff-aligned Raster');
 ylim([0 numel(spikeTrials)+1]);
 xlim([t0 tf]);
-hold off;
+%hold off;
 
 ax = gca;
 end
