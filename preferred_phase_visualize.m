@@ -58,7 +58,7 @@ RasterAlign = D2.RasterAlign;
 
 
 % --------- params ----------
-nBins            = 36;
+nBins            = 36;  % Used for a polar histogram
 angle_range      = [0 8*pi];     % use 0..8pi worth of data (4 sniffs)
 angle_range_plot = [0 2*pi];     % for wrapped plots
 
@@ -76,12 +76,21 @@ raster_color     = 'k';
 %   raster_phase_SW: phase [0,2pi], with inhale, exhale determined by average breath
 %   polar_phase_SW: polar histogram w/ SW
 %  
-% wrapped = 1/0 (True/False)
+% wrapped = 1/0 (True/False) 
+% %  If wrapped==1, data will be wrapped to "wrap_range" (using the mod
+%    operation: note that our current code ASSUMES wrap_range(1)=0 )
 % 
-% data_range = range for data 
+% data_range = data is first sub-selected to this range.  Any data outside this range is
+%    discarded
 %
 % wrap_range = range for wrapping/plotting 
+%     If wrapped==1, "wrap_range" is the obvious choice for plotting as well
+%     If wrapped==0, "wrap_range" is overloaded and used for xlim
 %
+% 
+
+% These are constants associated with "data_type"
+% For example, figure labeling that depends only on "data_type"
 title_dict = dictionary('raster_time','Raster (time)',...
     'raster_phase_IEequal','Inhale=Exhale',...
     'raster_phase_SW','Sniff-warped',...
@@ -93,25 +102,41 @@ scale_dict = dictionary('raster_time',1,'raster_phase_IEequal',1,...
     'raster_phase_SW',scale_to_phase,'polar_phase_SW',scale_to_phase);
 
 nRows = 5;
+% Each row must have all 4 variables set
 all_rows_info = cell(nRows,1);
 
+% Raster plot of spikes in time (seconds), ~4 cycles, no warping, NOT wrapped.
 all_rows_info{1}=struct('data_type','raster_time',...
     'wrapped',0,'data_range',time_range,'wrap_range',time_range_plot);
+% Raster plot of spikes in phase (rad), 4 cycles, sniffed-warped, NOT wrapped.
 all_rows_info{2}=struct('data_type','raster_phase_SW',...
     'wrapped',0,'data_range',angle_range,'wrap_range',angle_range);
+% Raster plot of spikes in phase (rad), 4 cycles, sniffed-warped, wrapped.
 all_rows_info{3}=struct('data_type','raster_phase_SW',...
     'wrapped',1,'data_range',angle_range,'wrap_range',angle_range_plot);
+% Polar histogram of phase (rad), 4 cycles, sniffed-warped, wrapped.
 all_rows_info{4}=struct('data_type','polar_phase_SW',...
     'wrapped',1,'data_range',angle_range,'wrap_range',angle_range_plot);
+% Polar histogram of phase (rad), 2 cycles, sniffed-warped, wrapped.
 all_rows_info{5}=struct('data_type','polar_phase_SW',...
     'wrapped',1,'data_range',angle_range/2,'wrap_range',angle_range_plot);
 
+% (1)<-> (2)
+%  This comparison shows the impact of sniff-warping vs. not sniff-warping
+% (2) contains exactly 4 cycles. The variation between cycles shows how
+%   the cycles immediately following stim onset differ from what happens
+%   later.
+% (2)<->(3)
+%  This comparison shows wrapped vs. not wrapped, for sniff-warped data
+% (4)<->(5)
+%  This shows how using 2 cycles vs. 4 cycles after stim onset impacts
+%  polar histogram.
 
 for ic = 1:numel(cellIDs)
     c = cellIDs(ic);
     nOd = numel(odorIDs);
 
-    % Figure layout: 4 rows x nOd columns
+    % Figure layout: nRows rows x nOd columns
     figure('Name', sprintf('OB Cell %d:Raster, phase NOT warped vs sniff-warped', c), ...
            'Color','w', 'Position',[50 100 180*nOd 650]);
     tiledlayout(nRows, nOd, 'TileSpacing','compact', 'Padding','compact');
@@ -134,7 +159,7 @@ for ic = 1:numel(cellIDs)
 
         for io = 1:nOd
             od = odorIDs(io);
-            nexttile((ir-1)*nOd+io);  % row 1 col io
+            nexttile((ir-1)*nOd+io);  % row "ir", col io
 
             % Collect trials
             rasEntry = mydata{od,c};   % cell array of trials
@@ -163,6 +188,8 @@ for ic = 1:numel(cellIDs)
                 % Do we wrap?
                 if (row_info.wrapped == 1)
                     t = mod(t, row_info.wrap_range(2));
+                    % This implicitly assumes that "wrap_range" starts
+                    % with 0.
                 end
                 spikeTrials{end+1} = t;
             end
@@ -199,13 +226,12 @@ for ic = 1:numel(cellIDs)
                     rmax = max(counts); 
                     if rmax == 0, rmax = 1; end
 
-                    % Inhale start (0) — solid blue
-                    polarplot([0 0], [0 rmax], 'b-', 'LineWidth', 1.5);
+                    % Inhale start (0) — green
+                    polarplot([0 0], [0 rmax], 'g-', 'LineWidth', 1.5);
 
-                    % Inhale end / Exhale start (pi) — dashed blue
-                    %polarplot([pi pi], [0 rmax], 'b--', 'LineWidth', 1.5);
+                    % Inhale end / Exhale start (pi) — blue
                     exhStartPhase = scale_to_phase*D.meanInh;
-                    polarplot([exhStartPhase exhStartPhase], [0 rmax], 'b--', 'LineWidth', 1.5);
+                    polarplot([exhStartPhase exhStartPhase], [0 rmax], 'b-', 'LineWidth', 1.5);
 
                     % Preferred phase arrow — black
                     polarplot([phi_pref phi_pref], [0 0.9*rmax], 'k-', 'LineWidth', 2);
@@ -221,6 +247,9 @@ for ic = 1:numel(cellIDs)
                     else
                         raster_plot(spikeTrials, row_info.wrap_range, struct('raster_color', raster_color));
                         if strcmp(row_info.data_type,'raster_phase_SW')
+                            % Spikes have units of seconds, but we want to
+                            % rescale to phase
+
                             % Inhale starts
                             vertInh = [0:10]*cycleLen*scale_to_phase; vertInh = vertInh(vertInh < row_info.wrap_range(2));
                             % Exhale starts
