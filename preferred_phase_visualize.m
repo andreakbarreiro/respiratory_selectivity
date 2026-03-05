@@ -32,7 +32,7 @@ matfile  = fullfile(dirloc, ['sniffwarped_BF_OB_' whichFile '.mat']);
 %stimData    = load([dirloc 'sniffwarped_BF_OB_' whichFile '.mat']);
 
 % --------- pick cells/odors ----------
-cellIDs = [16 17 18];
+cellIDs = [1 2 3];
 odorIDs = [1 2 5 7];
 
 % --------- load "sniff-warped" data----------
