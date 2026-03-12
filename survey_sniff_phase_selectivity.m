@@ -6,7 +6,8 @@ clear; clc
 addpath('util_graphics')
 
 %% ================= USER SETTINGS =================
-dirloc = '/Users/sharanaparvin/Fall 25 Research/Respiratory phase selectivity/';
+set_paths_AKB
+%dirloc = '/Users/sharanaparvin/Fall 25 Research/Respiratory phase selectivity/';
 
 fileList = {'170622','170621','170619','170618','170614','170613','170609','170608'};
 
@@ -113,6 +114,8 @@ for fi = 1:numel(fileList)
             Survey(fi).result(od,c).thr90 = thr90;
             Survey(fi).result(od,c).pval = pval;
             Survey(fi).result(od,c).coupled = coupled;
+            Survey(fi).result(od,c).nSpikes = length(phases_obs);
+            Survey(fi).result(od,c).ItoE = (D.meanInh/cycleLen)*2*pi;
 
             %% -------- STORE TABLE --------
 
