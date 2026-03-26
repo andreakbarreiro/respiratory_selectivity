@@ -9,7 +9,9 @@
 % ===============================================================
 
 clear; clc
-dirloc = '/Users/sharanaparvin/Fall 25 Research/Respiratory phase selectivity/';
+%dirloc = '/Users/sharanaparvin/Fall 25 Research/Respiratory phase selectivity/';
+
+set_paths_AKB
 load(fullfile(dirloc,'phase_selectivity_survey.mat'));
 
 nAnimals = length(Survey);
